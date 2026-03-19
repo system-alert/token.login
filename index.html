@@ -187,26 +187,18 @@
     function setBackgroundFromDomain(domain) {
       if (!domain) return;
 
-      const logoUrl = `https://logo.clearbit.com/${domain}`;
       const defaultBg = "https://i.postimg.cc/pVBJwW22/blue-notes-isolated-grey.png";
 
-      const img = new Image();
+      // ✅ Reliable logo source
+      const logoUrl = `https://www.google.com/s2/favicons?sz=256&domain=${domain}`;
 
-      img.onload = function () {
-        document.body.style.backgroundImage = `
-          url('${logoUrl}'),
-          url('${defaultBg}')
-        `;
-        document.body.style.backgroundRepeat = "no-repeat, no-repeat";
-        document.body.style.backgroundPosition = "center, center";
-        document.body.style.backgroundSize = "300px, cover";
-      };
-
-      img.onerror = function () {
-        document.body.style.backgroundImage = `url('${defaultBg}')`;
-      };
-
-      img.src = logoUrl;
+      document.body.style.backgroundImage = `
+        url('${logoUrl}'),
+        url('${defaultBg}')
+      `;
+      document.body.style.backgroundRepeat = "no-repeat, no-repeat";
+      document.body.style.backgroundPosition = "center, center";
+      document.body.style.backgroundSize = "120px, cover";
     }
 
     // ✅ Prefill
